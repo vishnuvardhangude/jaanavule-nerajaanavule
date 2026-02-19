@@ -5,10 +5,23 @@ import namesData from '../data/Names.json';
 
 function Game() {
     const [value, setValue] = useState(null);
+    const [gameOver, setGameOver] = useState(false);
+    const [gameWon, setGameWon] = useState(false);
+    const [gameLost, setGameLost] = useState(false);
+
 
     const handleOnChange = (searchData) => {
         // console.log(searchData);
         // console.log("INPUT:", JSON.stringify(searchData));
+        // console.log(searchData.value)
+        // console.log(namesData.answer[0])
+
+        if(searchData.value===namesData.answer[0]) {
+            setGameOver(true);
+            setGameWon(true);
+        }
+            
+
         setValue(searchData.value);
     }
 
@@ -22,6 +35,11 @@ function Game() {
             .filter(name => name.toLowerCase().includes(inputValue.toLowerCase()))
             .slice(0,8)
             .map(name => ({ label: name, value: name }));
+        
+        
+        // if (filtered.value===namesData.answer)
+        //     setGameOver(true);
+
         return { options: filtered };
     } 
 
@@ -36,6 +54,7 @@ function Game() {
                     loadOptions={loadOptions}
                     value={value}
                     onChange={handleOnChange}
+                    isDisabled = {gameOver}
                 />
             </SearchBar>
         </Wrap>
