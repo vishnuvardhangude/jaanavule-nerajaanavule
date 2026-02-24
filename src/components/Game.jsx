@@ -236,7 +236,7 @@ const GridBox = styled.div`
   width: 100%;
   height: 100%;        /* fill the grid cell */
   font-size: 20px;
-  border-radius: 8px;
+  border-radius: 4px;
   cursor: pointer;
   transition: opacity 0.3s ease, transform 0.2s;
   opacity: ${props => props.$isTransparent ? '0' : '1'};
