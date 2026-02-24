@@ -25,13 +25,16 @@ function Game() {
     const [gameLost, setGameLost] = useState(false);
     const [submittedValue, setSubmittedValue] = useState(null);
     const [showConfetti, setShowConfetti] = useState(null);
+    const [clickedBoxes, setClickedBoxes] = useState(new Set());
+
+    const rows = 6;
+    const cols = 4;
+
+    const total = rows * cols;
 
     const handleOnChange = (searchData) => {
         // console.log(searchData);
         // console.log("INPUT:", JSON.stringify(searchData));
-
-
-
         setValue(searchData);
     }
 
@@ -61,15 +64,37 @@ function Game() {
                 setGameOver(true);
                 setGameWon(true);
                 setShowConfetti(true);
-
             }
         }
     };
 
+    const handleBoxClick = (e, index) => {
+        e.stopPropagation();
+        setClickedBoxes(prev => {
+            const newSet = new Set(prev);
+            console.log(newSet);
+            if (newSet.has(index)) {
+                newSet.delete(index);
+            }
+
+            return newSet;
+        });
+
+    }
     return (
         <>
             <Wrap>
-                <img src="/images/image1.jpg" alt="game visual" />
+                <ImageWrapper>
+                    <img src="/images/image1.jpg" alt="game visual" />
+
+                    <GridOverlay>
+                        {Array.from({ length: total }).map((_, index) => (
+                            <GridBox key={index} $isTransparent={clickedBoxes.has(index)} onClick={(e) => handleBoxClick(e, index)}>
+                                {index + 1}
+                            </GridBox>
+                        ))}
+                    </GridOverlay>
+                </ImageWrapper>
                 <div>
                     <SearchBar>
                         <AsyncPaginate
@@ -99,6 +124,7 @@ function Game() {
                 }}>
                 <Confetti active={showConfetti} config={config} />
             </div>
+
         </>
     )
 }
@@ -106,22 +132,13 @@ function Game() {
 export default Game
 
 
-
-const Wrap = styled.div`
-    
+const Wrap = styled.div`    
   width: 40%;
   display: flex;
   flex-direction: column;
   justify-content: flex-start;
   margin: 0 auto;           /* horizontal center */
   gap: 1rem;
-  
-  img {
-    width: 100%;
-    height: 100%;
-    object-fit: cover; /* cover = fills box, crops excess */
-    display: block;
-  }
 `;
 
 const SearchBar = styled.div`
@@ -140,3 +157,47 @@ const SearchBar = styled.div`
     }
 `
 
+
+const ImageWrapper = styled.div`
+  position: relative;
+  width: 100%;
+  height: 100%;   /* MUST have height */
+  
+  img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    display: block;
+  }
+`;
+
+const GridOverlay = styled.div`
+  position: absolute;
+  inset: 0;
+  display: grid;
+  grid-template-columns: repeat(6, 1fr);  /* columns */
+  grid-template-rows: repeat(4, 1fr);     /* rows */
+//   pointer-events: none;
+`;
+
+const GridBox = styled.div`
+  background-color: #4f46e5; 
+  color: white;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  width: 100%;
+  height: 100%;        /* fill the grid cell */
+  font-size: 20px;
+  border-radius: 8px;
+  cursor: pointer;
+  transition: transform 0.2s;
+  opacity: ${props => props.$isTransparent ? '0' : '1'};
+  pointer-events: ${props => props.$isTransparent ? 'none' : 'auto'};
+
+  &:hover {
+    // transform: scale(1.1);
+    transform: ${props => props.$isTransparent ? 'none' : 'scale(1.1)'};
+
+  }
+`

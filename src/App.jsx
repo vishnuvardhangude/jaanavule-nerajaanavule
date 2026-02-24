@@ -6,6 +6,7 @@ import Header from './components/Header'
 import Game from './components/Game'
 import Footer from './components/Footer'
 import styled from 'styled-components'
+import ImageCover from './components/ImageCover'
 
 function App() {
   const [count, setCount] = useState(0)
@@ -14,6 +15,8 @@ function App() {
     <div className='app'>
       <Header />
       <Game />
+      {/* <ImageCover/> */}
+      {/* <Test/> */}
       <Footer />
     </div>
   )
