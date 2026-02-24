@@ -7,6 +7,7 @@ import Game from './components/Game'
 import Footer from './components/Footer'
 import styled from 'styled-components'
 import ImageCover from './components/ImageCover'
+import ImageFromDrive from './components/ImageFromDrive'
 
 function App() {
   const [count, setCount] = useState(0)
@@ -16,8 +17,8 @@ function App() {
       <Header />
       <Game />
       {/* <ImageCover/> */}
-      {/* <Test/> */}
-      <Footer />
+      {/* <ImageFromDrive /> */}
+      {/* <Footer /> */}
     </div>
   )
 }

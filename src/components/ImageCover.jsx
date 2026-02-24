@@ -17,9 +17,13 @@ const ImageCover = () => {
   useEffect(() => {
     const fetchGameData = async () => {
       try {
-        const res = await fetch(
-          "https://opensheet.elk.sh/1kAMg26hCuTGU79UFlu1sugn9lfhCyiQLXs_BmRSEYMA/GameData"
-        );
+        const gameDataUrl = import.meta.env.VITE_GAME_DATA_URL;
+        if (!gameDataUrl) {
+          console.error("VITE_APP_GAME_DATA_URL not set in .env");
+          return;
+        }
+
+        const res = await fetch(gameDataUrl);
         const data = await res.json();
 
         // Get today's date in DD/MM/YYYY format
@@ -32,7 +36,7 @@ const ImageCover = () => {
 
         if (todayRow) {
           const driveLink = todayRow.Image;
-          console.log("Drive Link from sheet:", driveLink);
+          // console.log("Drive Link from sheet:", driveLink);
 
           // Extract Google Drive file ID from common formats
           let fileId =
@@ -42,17 +46,13 @@ const ImageCover = () => {
           // console.log("Extracted File ID:", fileId);
 
           if (fileId) {
-            // Use CORS-friendly endpoint: Google's export=download endpoint
-            // This works better in browsers than uc?export=view
 
-            const finalUrl = `https://drive.google.com/uc?export=view&id=${fileId}`;
+            const finalUrl = fileId
+              ? `https://lh3.googleusercontent.com/d/${fileId}`
+              : "";
 
             setImageUrl(finalUrl);
             // console.log("Final Image URL:", finalUrl);
-          } else if (driveLink.startsWith('http')) {
-            // If it's already a full URL, try using it
-            setImageUrl(driveLink);
-            // console.log("Using direct URL:", driveLink);
           } else {
             console.warn("Could not extract Drive ID from:", driveLink);
           }

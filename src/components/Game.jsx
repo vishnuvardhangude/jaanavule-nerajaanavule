@@ -29,13 +29,88 @@ function Game() {
     const [clickedBoxes, setClickedBoxes] = useState(new Set());
     const [disableGrid, setDisableGrid] = useState(false);
     const [submitCount, setSubmitCount] = useState(0);
+    const [imageUrl, setImageUrl] = useState(null);
+    const [correctAnswer, setCorrectAnswer] = useState(null);
+    const [names, setNames] = useState(null);
 
     const rows = 4;
     const cols = 6;
 
     const total = rows * cols;
 
-    
+    useEffect(() => {
+        // console.log("start", new Date())
+        const fetchGameData = async () => {
+            try {
+                const gameDataUrl = import.meta.env.VITE_GAME_DATA_URL;
+                const namesDataUrl = import.meta.env.VITE_NAMES_DATA_URL;
+
+                if (!gameDataUrl || !namesDataUrl) {
+                    console.error("Env variables not set");
+                    return;
+                }
+
+                // ✅ Fetch both at same time
+                const [res1, res2] = await Promise.all([
+                    fetch(gameDataUrl),
+                    fetch(namesDataUrl)
+                ]);
+
+                const [data, namesData] = await Promise.all([
+                    res1.json(),
+                    res2.json()
+                ]);
+
+                const formatted = namesData.map(item => item.Celebrities);
+
+                // console.log(formatted);
+                setNames(formatted);
+
+                // Get today's date in DD/MM/YYYY format
+                const today = new Date();
+                const formattedDate = `${String(today.getDate()).padStart(2, "0")}/${String(
+                    today.getMonth() + 1
+                ).padStart(2, "0")}/${today.getFullYear()}`;
+
+                const todayRow = data.find(row => row.Date === formattedDate);
+
+                if (todayRow) {
+                    const driveLink = todayRow.Image;
+                    // console.log("Drive Link from sheet:", driveLink);
+
+                    // Extract Google Drive file ID from common formats
+                    let fileId =
+                        driveLink.match(/id=([^&]+)/)?.[1] ||  // ?id=FILEID
+                        driveLink.match(/\/d\/([^\/]+)/)?.[1]; // /d/FILEID/
+
+                    // console.log("Extracted File ID:", fileId);
+
+                    if (fileId) {
+
+                        const finalUrl = fileId
+                            ? `https://lh3.googleusercontent.com/d/${fileId}`
+                            : "";
+
+                        setImageUrl(finalUrl);
+                        // console.log("Final Image URL:", finalUrl);
+                    } else {
+                        console.warn("Could not extract Drive ID from:", driveLink);
+                    }
+
+                    setCorrectAnswer(todayRow.Answer);
+                } else {
+                    console.log("No game data for today:", formattedDate);
+                }
+            } catch (error) {
+                console.error("Error loading data:", error);
+            }
+        };
+
+        fetchGameData();
+        // console.log("end", new Date())
+    }, []);
+
+
     const handleOnChange = (searchData) => {
         // console.log(searchData);
         // console.log("INPUT:", JSON.stringify(searchData));
@@ -46,8 +121,9 @@ function Game() {
         if (!inputValue) {
             return { options: [] };
         }
+        // console.log(names)
         // Filter names from Names.json based on inputValue and exclude selected value
-        const filtered = namesData.names
+        const filtered = names
             .filter(name => name.toLowerCase().includes(inputValue.toLowerCase()))
             .filter(name => name !== value) // Exclude selected value
             .slice(0, 8)
@@ -61,7 +137,7 @@ function Game() {
         const count = submitCount + 1;
 
         setSubmitCount(submitCount + 1);
-
+        // console.log("before", disableGrid);
         if (count > 5) {
             return;
         }
@@ -71,16 +147,18 @@ function Game() {
 
             if (count < 5) {
                 //Game won
-                if (value.value === namesData.answer[0]) {
+                if (value.value === correctAnswer) {
                     setGameOver(true);
                     setGameWon(true);
                     setShowConfetti(true);
                     setDisableGrid(false);
                 }
-
+                else {
+                    setDisableGrid(false);
+                }
             }
 
-            else if (count === 5 && value.value === namesData.answer[0]) {
+            else if (count === 5 && value.value === correctAnswer) {
                 setGameOver(true);
                 setGameWon(true);
                 setGameLost(false);
@@ -88,11 +166,13 @@ function Game() {
                 setDisableGrid(false);
             }
 
-            else if (count === 5 && value.value != namesData.answer[0]) {
+            else if (count === 5 && value.value != correctAnswer) {
                 setGameOver(true);
                 setGameLost(true);
                 setDisableGrid(false);
             }
+
+            // console.log(disableGrid);
 
         }
     };
@@ -121,7 +201,20 @@ function Game() {
         <>
             <Wrap>
                 <ImageWrapper>
-                    <img src="/images/image1.jpg" alt="game visual" />
+
+                    {imageUrl ? (
+                        <img
+                            src={imageUrl}
+                            alt="game visual"
+                            style={{ maxWidth: "100%" }}
+                            onError={(e) => {
+                                console.error("Image failed to load:", imageUrl);
+                                // e.target.src = "/images/image1.jpg"; // Fallback to local image
+                            }}
+                        />
+                    ) : (
+                        <p>Loading image...</p>
+                    )}
 
                     <GridOverlay rows={rows} cols={cols}>
                         {Array.from({ length: total }).map((_, index) => (
