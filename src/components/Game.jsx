@@ -60,20 +60,12 @@ function Game() {
 
         setSubmitCount(submitCount + 1);
         
-        
-        console.log("submitCount: " + submitCount);
-        console.log("count: " + count);
-
         if (count > 5) {
-            console.log("greater count: " + count);
             return;
         }
 
         if (value) {
             setSubmittedValue(value.value); // store selected name
-
-            console.log(value.value)
-            console.log(namesData.answer[0])
 
             if (count < 5) {
                 //Game won
@@ -120,8 +112,6 @@ function Game() {
         else {
             setDisableGrid(true);
         }
-
-        console.log("Grid Disable: " + disableGrid);
 
     }
     return (
