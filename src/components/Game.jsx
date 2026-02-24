@@ -26,9 +26,11 @@ function Game() {
     const [submittedValue, setSubmittedValue] = useState(null);
     const [showConfetti, setShowConfetti] = useState(null);
     const [clickedBoxes, setClickedBoxes] = useState(new Set());
+    const [disableGrid, setDisableGrid] = useState(false);
+    const [submitCount, setSubmitCount] = useState(0);
 
-    const rows = 6;
-    const cols = 4;
+    const rows = 4;
+    const cols = 6;
 
     const total = rows * cols;
 
@@ -53,32 +55,61 @@ function Game() {
     }
 
     const handleSubmit = () => {
+
+        setSubmitCount(submitCount + 1);
+        const count = submitCount;
+        
+        console.log("count: " + count);
+
+        if (count > 5)
+            return;
+
         if (value) {
             setSubmittedValue(value.value); // store selected name
 
             console.log(value.value)
             console.log(namesData.answer[0])
 
-            //Game won
-            if (value.value === namesData.answer[0]) {
-                setGameOver(true);
-                setGameWon(true);
-                setShowConfetti(true);
+            if (count < 5) {
+                //Game won
+                if (value.value === namesData.answer[0]) {
+                    setGameOver(true);
+                    setGameWon(true);
+                    setShowConfetti(true);
+                    setDisableGrid(false);
+                }
+                setDisableGrid(false);
             }
+            else if (count === 5 && value.value != namesData.answer[0]) {
+                setGameOver(true);
+                setGameLost(true);
+                setDisableGrid(false);
+            }
+
+            // 
         }
     };
 
     const handleBoxClick = (e, index) => {
         e.stopPropagation();
+
         setClickedBoxes(prev => {
+
             const newSet = new Set(prev);
-            if (newSet.has(index)) {
-                newSet.delete(index);
-            } else {
-                newSet.add(index);
-            }
+            newSet.add(index);
             return newSet;
+
         });
+
+        if (gameOver) {
+            setDisableGrid(false);
+        }
+        else {
+            setDisableGrid(true);
+        }
+
+        console.log("Grid Disable: " + disableGrid);
+
     }
     return (
         <>
@@ -86,9 +117,14 @@ function Game() {
                 <ImageWrapper>
                     <img src="/images/image1.jpg" alt="game visual" />
 
-                    <GridOverlay>
+                    <GridOverlay rows={rows} cols={cols}>
                         {Array.from({ length: total }).map((_, index) => (
-                            <GridBox key={index} $isTransparent={clickedBoxes.has(index)} onClick={(e) => handleBoxClick(e, index)}>
+                            <GridBox
+                                key={index}
+                                $isTransparent={clickedBoxes.has(index)}
+                                $disable={disableGrid}
+                                onClick={(e) => handleBoxClick(e, index)}
+                            >
                                 {index + 1}
                             </GridBox>
                         ))}
@@ -103,7 +139,7 @@ function Game() {
                             onChange={handleOnChange}
                             isDisabled={gameOver}
                         />
-                        <button onClick={handleSubmit} disabled={!value}>
+                        <button onClick={handleSubmit} disabled={(!value) || gameOver}>
                             Submit
                         </button>
                     </SearchBar>
@@ -111,6 +147,11 @@ function Game() {
                 {submittedValue && (
                     <div style={{ marginTop: "20px" }}>
                         Selected: {submittedValue}
+                    </div>
+                )}
+                {gameOver && (
+                    <div style={{ marginTop: "20px" }}>
+                        Game Lost
                     </div>
                 )}
             </Wrap>
@@ -154,7 +195,7 @@ const SearchBar = styled.div`
     button {
         flex-shrink: 0;
     }
-`
+`;
 
 
 const ImageWrapper = styled.div`
@@ -176,8 +217,9 @@ const GridOverlay = styled.div`
   width: 100%;
   height: 100%;
   display: grid;
-  grid-template-columns: repeat(4, 1fr);  /* columns */
-  grid-template-rows: repeat(6, 1fr);     /* rows */
+  grid-template-columns: repeat(${props => props.cols}, 1fr);  /* columns */
+  grid-template-rows: repeat(${props => props.rows}, 1fr);     /* rows */
+  pointer-events: auto;
 `;
 
 const GridBox = styled.div`
@@ -193,7 +235,7 @@ const GridBox = styled.div`
   cursor: pointer;
   transition: opacity 0.3s ease, transform 0.2s;
   opacity: ${props => props.$isTransparent ? '0' : '1'};
-  pointer-events: ${props => props.$isTransparent ? 'none' : 'auto'};
+  pointer-events: ${props => (props.$isTransparent || props.$disable) ? 'none' : 'auto'};
 
   &:hover {
     transform: ${props => props.$isTransparent ? 'none' : 'scale(1.1)'};
