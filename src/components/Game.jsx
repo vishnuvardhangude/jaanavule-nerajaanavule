@@ -72,14 +72,13 @@ function Game() {
         e.stopPropagation();
         setClickedBoxes(prev => {
             const newSet = new Set(prev);
-            console.log(newSet);
             if (newSet.has(index)) {
                 newSet.delete(index);
+            } else {
+                newSet.add(index);
             }
-
             return newSet;
         });
-
     }
     return (
         <>
@@ -174,10 +173,11 @@ const ImageWrapper = styled.div`
 const GridOverlay = styled.div`
   position: absolute;
   inset: 0;
+  width: 100%;
+  height: 100%;
   display: grid;
-  grid-template-columns: repeat(6, 1fr);  /* columns */
-  grid-template-rows: repeat(4, 1fr);     /* rows */
-//   pointer-events: none;
+  grid-template-columns: repeat(4, 1fr);  /* columns */
+  grid-template-rows: repeat(6, 1fr);     /* rows */
 `;
 
 const GridBox = styled.div`
@@ -191,13 +191,11 @@ const GridBox = styled.div`
   font-size: 20px;
   border-radius: 8px;
   cursor: pointer;
-  transition: transform 0.2s;
+  transition: opacity 0.3s ease, transform 0.2s;
   opacity: ${props => props.$isTransparent ? '0' : '1'};
   pointer-events: ${props => props.$isTransparent ? 'none' : 'auto'};
 
   &:hover {
-    // transform: scale(1.1);
     transform: ${props => props.$isTransparent ? 'none' : 'scale(1.1)'};
-
   }
-`
+`;
