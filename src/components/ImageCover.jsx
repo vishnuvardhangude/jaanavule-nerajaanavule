@@ -93,12 +93,21 @@ const ImageCover = () => {
               style={{ maxWidth: "100%" }}
               onError={(e) => {
                 console.error("Image failed to load:", imageUrl);
-                // e.target.src = "/images/image1.jpg"; // Fallback to local image
+                e.target.src = "/images/image1.jpg"; // Fallback to local image
               }}
             />
           ) : (
             <p>Loading image...</p>
           )}
+          {/* <img src="/images/image1.jpg" alt="game visual" /> */}
+          <GridOverlay rows={rows} cols={cols}>
+            {boxes.map((_, index) => (
+              <GridBox key={index} $isTransparent={clickedBoxes.has(index)} onClick={(e) => handleBoxClick(e, index)}>
+                {index + 1}
+              </GridBox>
+            ))}
+          </GridOverlay>
+
         </ImageWrapper>
       </Wrap>
     </>
