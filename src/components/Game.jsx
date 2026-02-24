@@ -149,9 +149,14 @@ function Game() {
                         Selected: {submittedValue}
                     </div>
                 )}
-                {gameOver && (
-                    <div style={{ marginTop: "20px" }}>
-                        Game Lost
+                {gameLost && (
+                    <div style={{ marginTop: "10px" }}>
+                        Game Lost :(
+                    </div>
+                )}
+                {gameWon && (
+                    <div style={{ marginTop: "10px" }}>
+                        Game Won!!!
                     </div>
                 )}
             </Wrap>
