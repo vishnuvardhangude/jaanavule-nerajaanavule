@@ -56,13 +56,18 @@ function Game() {
 
     const handleSubmit = () => {
 
+        const count = submitCount+1;
+
         setSubmitCount(submitCount + 1);
-        const count = submitCount;
         
+        
+        console.log("submitCount: " + submitCount);
         console.log("count: " + count);
 
-        if (count > 5)
+        if (count > 5) {
+            console.log("greater count: " + count);
             return;
+        }
 
         if (value) {
             setSubmittedValue(value.value); // store selected name
@@ -78,15 +83,23 @@ function Game() {
                     setShowConfetti(true);
                     setDisableGrid(false);
                 }
+                
+            }
+
+            else if (count === 5 && value.value === namesData.answer[0]) {
+                setGameOver(true);
+                setGameWon(true); 
+                setGameLost(false);
+                setShowConfetti(true);
                 setDisableGrid(false);
             }
+
             else if (count === 5 && value.value != namesData.answer[0]) {
                 setGameOver(true);
                 setGameLost(true);
                 setDisableGrid(false);
             }
-
-            // 
+        
         }
     };
 
