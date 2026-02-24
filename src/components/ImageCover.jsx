@@ -1,8 +1,11 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import styled from "styled-components";
 
 const ImageCover = () => {
   const [clickedBoxes, setClickedBoxes] = useState(new Set());
+  const [imageUrl, setImageUrl] = useState(null);
+  const [imageTried, setImageTried] = useState(false);
+  const [correctAnswer, setCorrectAnswer] = useState(null);
 
   const rows = 4;
   const cols = 6;
@@ -10,6 +13,61 @@ const ImageCover = () => {
   const total = rows * cols;
 
   const boxes = Array.from({ length: total });
+
+  useEffect(() => {
+    const fetchGameData = async () => {
+      try {
+        const res = await fetch(
+          "https://opensheet.elk.sh/1kAMg26hCuTGU79UFlu1sugn9lfhCyiQLXs_BmRSEYMA/GameData"
+        );
+        const data = await res.json();
+
+        // Get today's date in DD/MM/YYYY format
+        const today = new Date();
+        const formattedDate = `${String(today.getDate()).padStart(2, "0")}/${String(
+          today.getMonth() + 1
+        ).padStart(2, "0")}/${today.getFullYear()}`;
+
+        const todayRow = data.find(row => row.Date === formattedDate);
+
+        if (todayRow) {
+          const driveLink = todayRow.Image;
+          console.log("Drive Link from sheet:", driveLink);
+
+          // Extract Google Drive file ID from common formats
+          let fileId =
+            driveLink.match(/id=([^&]+)/)?.[1] ||  // ?id=FILEID
+            driveLink.match(/\/d\/([^\/]+)/)?.[1]; // /d/FILEID/
+
+          // console.log("Extracted File ID:", fileId);
+
+          if (fileId) {
+            // Use CORS-friendly endpoint: Google's export=download endpoint
+            // This works better in browsers than uc?export=view
+
+            const finalUrl = `https://drive.google.com/uc?export=view&id=${fileId}`;
+
+            setImageUrl(finalUrl);
+            // console.log("Final Image URL:", finalUrl);
+          } else if (driveLink.startsWith('http')) {
+            // If it's already a full URL, try using it
+            setImageUrl(driveLink);
+            // console.log("Using direct URL:", driveLink);
+          } else {
+            console.warn("Could not extract Drive ID from:", driveLink);
+          }
+
+          setCorrectAnswer(todayRow.Answer);
+        } else {
+          console.log("No game data for today:", formattedDate);
+        }
+      } catch (error) {
+        console.error("Error loading data:", error);
+      }
+    };
+
+    fetchGameData();
+  }, []);
 
   const handleBoxClick = (e, index) => {
     // e.stopPropagation();
@@ -28,15 +86,19 @@ const ImageCover = () => {
     <>
       <Wrap>
         <ImageWrapper>
-          <img src="/images/image1.jpg" alt="game visual" />
-          <GridOverlay rows={rows} cols={cols}>
-            {boxes.map((_, index) => (
-              <GridBox key={index} $isTransparent={clickedBoxes.has(index)} onClick={(e) => handleBoxClick(e, index)}>
-                {index + 1}
-              </GridBox>
-            ))}
-          </GridOverlay>
-
+          {imageUrl ? (
+            <img
+              src={imageUrl}
+              alt="game visual"
+              style={{ maxWidth: "100%" }}
+              onError={(e) => {
+                console.error("Image failed to load:", imageUrl);
+                // e.target.src = "/images/image1.jpg"; // Fallback to local image
+              }}
+            />
+          ) : (
+            <p>Loading image...</p>
+          )}
         </ImageWrapper>
       </Wrap>
     </>

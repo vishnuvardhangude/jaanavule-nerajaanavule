@@ -1,4 +1,5 @@
-import React, { useState } from 'react';
+
+import React, { useState, useEffect } from 'react';
 import styled from 'styled-components';
 import { AsyncPaginate } from 'react-select-async-paginate';
 import namesData from '../data/Names.json';
@@ -34,6 +35,7 @@ function Game() {
 
     const total = rows * cols;
 
+    
     const handleOnChange = (searchData) => {
         // console.log(searchData);
         // console.log("INPUT:", JSON.stringify(searchData));
@@ -56,10 +58,10 @@ function Game() {
 
     const handleSubmit = () => {
 
-        const count = submitCount+1;
+        const count = submitCount + 1;
 
         setSubmitCount(submitCount + 1);
-        
+
         if (count > 5) {
             return;
         }
@@ -75,12 +77,12 @@ function Game() {
                     setShowConfetti(true);
                     setDisableGrid(false);
                 }
-                
+
             }
 
             else if (count === 5 && value.value === namesData.answer[0]) {
                 setGameOver(true);
-                setGameWon(true); 
+                setGameWon(true);
                 setGameLost(false);
                 setShowConfetti(true);
                 setDisableGrid(false);
@@ -91,7 +93,7 @@ function Game() {
                 setGameLost(true);
                 setDisableGrid(false);
             }
-        
+
         }
     };
 
@@ -114,6 +116,7 @@ function Game() {
         }
 
     }
+
     return (
         <>
             <Wrap>
