@@ -434,7 +434,8 @@ const GridBox = styled.div`
     align-items: center;
     width: 100%;
     height: 100%;        /* fill the grid cell */
-    font-size: 20px;
+    // font-size: 5px;
+    font-size: clamp(2px, 2vw, 15px);
     border-radius: 4px;
     cursor: pointer;
     transition: opacity 0.3s ease, transform 0.2s;
