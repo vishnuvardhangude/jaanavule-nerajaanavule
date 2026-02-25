@@ -2,7 +2,7 @@ import React from 'react'
 
 function ImageFromDrive() {
   // Original Drive share link
-  const shareUrl = "https://drive.google.com/file/d/1AdIzalgrEU7YzypVhTTHXjJoeccwM5Hz/view?usp=sharing";
+  const shareUrl = "https://drive.google.com/file/d/1iTHB9TwdSfka7h3xXGTBrwrayBGsOrK_/view?usp=drive_link";
   
   // Extract the file ID from the share URL
   const fileId = shareUrl.match(/\/d\/([^\/]+)/)?.[1];

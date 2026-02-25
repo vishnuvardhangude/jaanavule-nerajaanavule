@@ -33,8 +33,8 @@ function Game() {
     const [correctAnswer, setCorrectAnswer] = useState(null);
     const [names, setNames] = useState(null);
 
-    const rows = 4;
-    const cols = 6;
+    const rows = 7;
+    const cols = 7;
 
     const total = rows * cols;
 
@@ -96,7 +96,7 @@ function Game() {
                     } else {
                         console.warn("Could not extract Drive ID from:", driveLink);
                     }
-
+                    // console.log(todayRow.Answer)
                     setCorrectAnswer(todayRow.Answer);
                 } else {
                     console.log("No game data for today:", formattedDate);
@@ -209,7 +209,7 @@ function Game() {
                             style={{ maxWidth: "100%" }}
                             onError={(e) => {
                                 console.error("Image failed to load:", imageUrl);
-                                // e.target.src = "/images/image1.jpg"; // Fallback to local image
+                                // e.target.src = {imageUrl}; // Fallback to local image
                             }}
                         />
                     ) : (
