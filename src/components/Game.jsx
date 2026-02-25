@@ -33,6 +33,7 @@ function Game() {
     const [correctAnswer, setCorrectAnswer] = useState(null);
     const [names, setNames] = useState(null);
     const [selectedOptions, setSelectedOptions] = useState([]);
+    const [revealAll, setRevealAll] = useState(false);
 
     const rows = 7;
     const cols = 7;
@@ -184,6 +185,37 @@ function Game() {
         }
     };
 
+    const handleSkip = () => {
+
+        const count = submitCount + 1;
+
+        setSubmitCount(submitCount + 1);
+
+        // console.log("before", disableGrid);
+        // console.log(count);
+
+        if (count > 5) {
+            return;
+        }
+
+        setSubmittedValue("Skipped"); // store selected name
+
+        setSelectedOptions(prev => {
+            return [...prev, "Skipped"];
+        });
+
+        if (count < 5) {
+            setDisableGrid(false);
+        }
+
+        else if (count === 5) {
+            setGameOver(true);
+            setGameLost(true);
+            setDisableGrid(false);
+        }
+
+    };
+
     const handleBoxClick = (e, index) => {
         e.stopPropagation();
 
@@ -202,7 +234,15 @@ function Game() {
             setDisableGrid(true);
         }
 
-    }
+    };
+
+    const handleReveal = (e, index) => {
+
+        if (gameOver) {
+            setRevealAll(true);
+        }
+
+    };
 
     return (
         <>
@@ -228,6 +268,7 @@ function Game() {
                             <GridBox
                                 key={index}
                                 $isTransparent={clickedBoxes.has(index)}
+                                $revealAll={revealAll}
                                 $disable={disableGrid}
                                 onClick={(e) => handleBoxClick(e, index)}
                             >
@@ -245,9 +286,19 @@ function Game() {
                             onChange={handleOnChange}
                             isDisabled={gameOver}
                         />
-                        <button onClick={handleSubmit} disabled={(!value) || gameOver}>
-                            Submit
-                        </button>
+                        <Buttons>
+                            <button onClick={handleSubmit} disabled={(!value) || gameOver}>
+                                Submit
+                            </button>
+                            <button onClick={handleSkip} disabled={gameOver}>
+                                Skip
+                            </button>
+                            {gameOver &&
+                                <button onClick={handleReveal} disabled={!gameOver}>
+                                    Reveal Image
+                                </button>
+                            }
+                        </Buttons>
                     </SearchBar>
                 </div>
                 {selectedOptions.length > 0 && (
@@ -260,12 +311,22 @@ function Game() {
                 )}
                 {gameLost && (
                     <div style={{ marginTop: "10px" }}>
-                        Game Lost :(
+                        <div>
+                            Game Lost :(
+                        </div>
+                        <div>
+                            Correct Answer: {correctAnswer}
+                        </div>
                     </div>
                 )}
                 {gameWon && (
                     <div style={{ marginTop: "10px" }}>
-                        Game Won!!!
+                        <div>
+                            Game Won!!!
+                        </div>
+                        <div>
+                            Correct Answer: {correctAnswer}
+                        </div>
                     </div>
                 )}
             </Wrap>
@@ -295,6 +356,37 @@ const Wrap = styled.div`
   gap: 1rem;
 `;
 
+const Buttons = styled.div `
+    display: flex;
+    flex-direction: row;
+    justify-content: center;
+    margin: 2px auto;
+    align-items: center;
+
+    button {
+        width: 100px;
+        height: 30px;
+        flex-shrink: 0;
+        margin: 3px;
+        background-color: rgba(12, 87, 236, 0.8);
+        color: white;
+        border-radius: 5px;
+        opacity: 1.0;
+        text-transform: uppercase;
+        font-size: 12px;
+        cursor: pointer;
+        border: none;
+        outline: none;
+        &:hover {
+            transform:  scale(1.02);
+        }
+
+    }
+`
+const LeftButton= styled.div`
+  
+`
+
 const SearchBar = styled.div`
     width: 350px;
     // display: flex;
@@ -306,9 +398,7 @@ const SearchBar = styled.div`
         min-width: 0;     /* prevents flex overflow issues */
     }
 
-    button {
-        flex-shrink: 0;
-    }
+    
 `;
 
 
@@ -337,23 +427,23 @@ const GridOverlay = styled.div`
 `;
 
 const GridBox = styled.div`
-  background-color: #4f46e5; 
-  color: white;
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  width: 100%;
-  height: 100%;        /* fill the grid cell */
-  font-size: 20px;
-  border-radius: 4px;
-  cursor: pointer;
-  transition: opacity 0.3s ease, transform 0.2s;
-  opacity: ${props => props.$isTransparent ? '0' : '1'};
-  pointer-events: ${props => (props.$isTransparent || props.$disable) ? 'none' : 'auto'};
+    background-color: #4f46e5; 
+    color: white;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    width: 100%;
+    height: 100%;        /* fill the grid cell */
+    font-size: 20px;
+    border-radius: 4px;
+    cursor: pointer;
+    transition: opacity 0.3s ease, transform 0.2s;
+    opacity: ${props => (props.$revealAll || props.$isTransparent) ? '0' : '1'};
+    pointer-events: ${props => (props.$isTransparent || props.$disable) ? 'none' : 'auto'};
 
-  &:hover {
-    transform: ${props => props.$isTransparent ? 'none' : 'scale(1.1)'};
-  }
+    &:hover {
+        transform: ${props => (props.$isTransparent || props.$revealAll) ? 'none' : 'scale(1.1)'};
+    }
 `;
 
 const DisplaySelectedOptions = styled.div`
