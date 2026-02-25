@@ -32,6 +32,7 @@ function Game() {
     const [imageUrl, setImageUrl] = useState(null);
     const [correctAnswer, setCorrectAnswer] = useState(null);
     const [names, setNames] = useState(null);
+    const [selectedOptions, setSelectedOptions] = useState([]);
 
     const rows = 7;
     const cols = 7;
@@ -142,8 +143,14 @@ function Game() {
             return;
         }
 
+
+
         if (value) {
             setSubmittedValue(value.value); // store selected name
+
+            setSelectedOptions(prev => {
+                return [...prev, value.value];
+            });
 
             if (count < 5) {
                 //Game won
@@ -243,10 +250,13 @@ function Game() {
                         </button>
                     </SearchBar>
                 </div>
-                {submittedValue && (
-                    <div style={{ marginTop: "20px" }}>
-                        Selected: {submittedValue}
-                    </div>
+                {selectedOptions.length > 0 && (
+                    <DisplaySelectedOptions style={{ marginTop: "20px" }}>
+                        <div>Selected:</div>
+                        {selectedOptions.map((name, idx) => (
+                            <div key={idx}>{name}</div>
+                        ))}
+                    </DisplaySelectedOptions>
                 )}
                 {gameLost && (
                     <div style={{ marginTop: "10px" }}>
@@ -344,4 +354,9 @@ const GridBox = styled.div`
   &:hover {
     transform: ${props => props.$isTransparent ? 'none' : 'scale(1.1)'};
   }
+`;
+
+const DisplaySelectedOptions = styled.div`
+  display: flex;
+  flex-direction: column;
 `;
