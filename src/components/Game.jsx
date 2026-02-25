@@ -263,19 +263,21 @@ function Game() {
                         <p>Loading image...</p>
                     )}
 
-                    <GridOverlay rows={rows} cols={cols}>
-                        {Array.from({ length: total }).map((_, index) => (
-                            <GridBox
-                                key={index}
-                                $isTransparent={clickedBoxes.has(index)}
-                                $revealAll={revealAll}
-                                $disable={disableGrid}
-                                onClick={(e) => handleBoxClick(e, index)}
-                            >
-                                {index + 1}
-                            </GridBox>
-                        ))}
-                    </GridOverlay>
+                    {imageUrl &&
+                        <GridOverlay rows={rows} cols={cols}>
+                            {Array.from({ length: total }).map((_, index) => (
+                                <GridBox
+                                    key={index}
+                                    $isTransparent={clickedBoxes.has(index)}
+                                    $revealAll={revealAll}
+                                    $disable={disableGrid}
+                                    onClick={(e) => handleBoxClick(e, index)}
+                                >
+                                    {index + 1}
+                                </GridBox>
+                            ))}
+                        </GridOverlay>
+                    }
                 </ImageWrapper>
                 <div>
                     <SearchBar>
@@ -348,15 +350,18 @@ export default Game
 
 
 const Wrap = styled.div`    
-  width: 40%;
+  width: 50%;
+  height: 100%;
   display: flex;
   flex-direction: column;
-  justify-content: flex-start;
+//   justify-content: flex-start;
+  justify-content: space-between; //vertical
+
   margin: 0 auto;           /* horizontal center */
   gap: 1rem;
 `;
 
-const Buttons = styled.div `
+const Buttons = styled.div`
     display: flex;
     flex-direction: row;
     justify-content: center;
@@ -383,9 +388,7 @@ const Buttons = styled.div `
 
     }
 `
-const LeftButton= styled.div`
-  
-`
+
 
 const SearchBar = styled.div`
     width: 350px;
