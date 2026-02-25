@@ -349,15 +349,26 @@ function Game() {
 export default Game
 
 
-const Wrap = styled.div`    
-  width: 50%;
-  height: 100%;
+// const Wrap = styled.div`    
+//   width: 50%;
+//   height: 100%;
+//   display: flex;
+//   flex-direction: column;
+// //   justify-content: flex-start;
+//   justify-content: space-between; //vertical
+
+//   margin: 0 auto;           /* horizontal center */
+//   gap: 1rem;
+// `;
+
+const Wrap = styled.div`
+  width: 90%;
+  max-width: 500px;   /* prevents too big on desktop */
+  min-height: 100vh;
   display: flex;
   flex-direction: column;
-//   justify-content: flex-start;
-  justify-content: space-between; //vertical
-
-  margin: 0 auto;           /* horizontal center */
+  justify-content: flex-start;
+  margin: 0 auto;
   gap: 1rem;
 `;
 
