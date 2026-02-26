@@ -2,8 +2,9 @@
 import React, { useState, useEffect } from 'react';
 import styled from 'styled-components';
 import { AsyncPaginate } from 'react-select-async-paginate';
-import namesData from '../data/Names.json';
+import { MAX_ATTEMPTS, ROWS, COLS, CORRECT, WRONG } from '../utils/constants';
 import Confetti from "react-dom-confetti";
+import { useLocalStorage, useLocalStorageSet } from '../utils/storage';
 
 const config = {
     angle: "180",
@@ -21,26 +22,51 @@ const config = {
 
 function Game() {
     const [value, setValue] = useState(null);
-    const [gameOver, setGameOver] = useState(false);
-    const [gameWon, setGameWon] = useState(false);
-    const [gameLost, setGameLost] = useState(false);
+    const [gameOver, setGameOver] = useLocalStorage("gameOver", false);
+    const [gameWon, setGameWon] = useLocalStorage("gameWon", false);
+    const [gameLost, setGameLost] = useLocalStorage("gameLost", false);
     const [submittedValue, setSubmittedValue] = useState(null);
     const [showConfetti, setShowConfetti] = useState(null);
-    const [clickedBoxes, setClickedBoxes] = useState(new Set());
-    const [disableGrid, setDisableGrid] = useState(false);
+    const [clickedBoxes, setClickedBoxes] = useLocalStorageSet("clickedBoxes", new Set());
+    const [disableGrid, setDisableGrid] = useLocalStorage("disableGrid", false);
     const [submitCount, setSubmitCount] = useState(0);
     const [imageUrl, setImageUrl] = useState(null);
     const [correctAnswer, setCorrectAnswer] = useState(null);
     const [names, setNames] = useState(null);
-    const [selectedOptions, setSelectedOptions] = useState([]);
-    const [revealAll, setRevealAll] = useState(false);
+    const [selectedOptions, setSelectedOptions] = useLocalStorage("selectedOptions", []);
+    const [selectedOptionsEmoji, setSelectedOptionsEmoji] = useLocalStorage("selectedOptionsEmoji", []);
+    const [revealAll, setRevealAll] = useLocalStorage("revealAll", false);
+    // const [guessDistribution, setGuessDistribution] = useLocalStorageSet("guessDistribution", []);
+    const [date, setDate] = useLocalStorage("date", "01/01/2026")
 
-    const rows = 7;
-    const cols = 7;
+    const rows = ROWS;
+    const cols = COLS;
 
     const total = rows * cols;
 
     useEffect(() => {
+
+        const today = new Date();
+        const formattedDate = `${String(today.getDate()).padStart(2, "0")}/${String(
+            today.getMonth() + 1
+        ).padStart(2, "0")}/${today.getFullYear()}`;
+
+        // console.log(formattedDate);
+
+        if(date!=formattedDate){
+        // if (date === "26/02/2026") {
+            setDate(formattedDate);
+            setGameLost(false);
+            setGameWon(false);
+            setGameOver(false);
+            setShowConfetti(false);
+            setClickedBoxes(new Set());
+            setDisableGrid(false);
+            setSelectedOptions([])
+            setSelectedOptionsEmoji([])
+            setRevealAll(false);
+        }
+
         // console.log("start", new Date())
         const fetchGameData = async () => {
             try {
@@ -69,10 +95,7 @@ function Game() {
                 setNames(formatted);
 
                 // Get today's date in DD/MM/YYYY format
-                const today = new Date();
-                const formattedDate = `${String(today.getDate()).padStart(2, "0")}/${String(
-                    today.getMonth() + 1
-                ).padStart(2, "0")}/${today.getFullYear()}`;
+
 
                 const todayRow = data.find(row => row.Date === formattedDate);
 
@@ -107,9 +130,11 @@ function Game() {
                 console.error("Error loading data:", error);
             }
         };
-
         fetchGameData();
         // console.log("end", new Date())
+        // console.log("gamewon ", gameWon);
+        // console.log("gameLost ", gameLost)
+
     }, []);
 
 
@@ -140,10 +165,9 @@ function Game() {
 
         setSubmitCount(submitCount + 1);
         // console.log("before", disableGrid);
-        if (count > 5) {
+        if (count > MAX_ATTEMPTS) {
             return;
         }
-
 
 
         if (value) {
@@ -153,31 +177,49 @@ function Game() {
                 return [...prev, value.value];
             });
 
-            if (count < 5) {
+
+            if (count < MAX_ATTEMPTS) {
                 //Game won
                 if (value.value === correctAnswer) {
                     setGameOver(true);
                     setGameWon(true);
                     setShowConfetti(true);
                     setDisableGrid(false);
+
+                    setSelectedOptionsEmoji(prev => {
+                        return [...prev, CORRECT];
+                    });
+
                 }
                 else {
                     setDisableGrid(false);
+
+                    setSelectedOptionsEmoji(prev => {
+                        return [...prev, WRONG];
+                    });
                 }
             }
 
-            else if (count === 5 && value.value === correctAnswer) {
+            else if (count === MAX_ATTEMPTS && value.value === correctAnswer) {
                 setGameOver(true);
                 setGameWon(true);
                 setGameLost(false);
                 setShowConfetti(true);
                 setDisableGrid(false);
+
+                setSelectedOptionsEmoji(prev => {
+                    return [...prev, CORRECT];
+                });
             }
 
-            else if (count === 5 && value.value != correctAnswer) {
+            else if (count === MAX_ATTEMPTS && value.value != correctAnswer) {
                 setGameOver(true);
                 setGameLost(true);
                 setDisableGrid(false);
+
+                setSelectedOptionsEmoji(prev => {
+                    return [...prev, WRONG];
+                });
             }
 
             // console.log(disableGrid);
@@ -189,12 +231,13 @@ function Game() {
 
         const count = submitCount + 1;
 
+
         setSubmitCount(submitCount + 1);
 
         // console.log("before", disableGrid);
         // console.log(count);
 
-        if (count > 5) {
+        if (count > MAX_ATTEMPTS) {
             return;
         }
 
@@ -204,11 +247,15 @@ function Game() {
             return [...prev, "Skipped"];
         });
 
-        if (count < 5) {
+        setSelectedOptionsEmoji(prev => {
+            return [...prev, WRONG];
+        });
+
+        if (count < MAX_ATTEMPTS) {
             setDisableGrid(false);
         }
 
-        else if (count === 5) {
+        else if (count === MAX_ATTEMPTS) {
             setGameOver(true);
             setGameLost(true);
             setDisableGrid(false);
@@ -226,6 +273,8 @@ function Game() {
             return newSet;
 
         });
+        console.log(clickedBoxes);
+
 
         if (gameOver) {
             setDisableGrid(false);
@@ -303,14 +352,18 @@ function Game() {
                         </Buttons>
                     </SearchBar>
                 </div>
+
                 {selectedOptions.length > 0 && (
-                    <DisplaySelectedOptions style={{ marginTop: "20px" }}>
-                        <div>Selected:</div>
+                    <DisplaySelectedOptions style={{ marginTop: "10px" }}>
+                        {/* <div>Selected:</div> */}
                         {selectedOptions.map((name, idx) => (
-                            <div key={idx}>{name}</div>
+                            <div key={idx}>
+                                {selectedOptionsEmoji[idx]} {name}
+                            </div>
                         ))}
                     </DisplaySelectedOptions>
                 )}
+
                 {gameLost && (
                     <div style={{ marginTop: "10px" }}>
                         <div>
@@ -325,9 +378,6 @@ function Game() {
                     <div style={{ marginTop: "10px" }}>
                         <div>
                             Game Won!!!
-                        </div>
-                        <div>
-                            Correct Answer: {correctAnswer}
                         </div>
                     </div>
                 )}
@@ -348,18 +398,6 @@ function Game() {
 
 export default Game
 
-
-// const Wrap = styled.div`    
-//   width: 50%;
-//   height: 100%;
-//   display: flex;
-//   flex-direction: column;
-// //   justify-content: flex-start;
-//   justify-content: space-between; //vertical
-
-//   margin: 0 auto;           /* horizontal center */
-//   gap: 1rem;
-// `;
 
 const Wrap = styled.div`
   width: 90%;
@@ -411,8 +449,6 @@ const SearchBar = styled.div`
         flex: 1;          /* takes available space */
         min-width: 0;     /* prevents flex overflow issues */
     }
-
-    
 `;
 
 
