@@ -5,7 +5,6 @@ import Game from './components/Game'
 import Footer from './components/Footer'
 import styled from 'styled-components'
 import { Analytics } from '@vercel/analytics/react'
-import { SpeedInsights } from "@vercel/speed-insights/next"
 
 function App() {
   const [count, setCount] = useState(0)
@@ -16,7 +15,6 @@ function App() {
       <Game />
       {/* <Footer /> */}
       <Analytics />
-      <SpeedInsights />
     </div>
   )
 }
