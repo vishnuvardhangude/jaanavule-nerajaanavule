@@ -2,6 +2,22 @@ import React, { useState, useEffect } from 'react';
 import styled from 'styled-components';
 import { range } from 'lodash';
 import { MAX_ATTEMPTS } from '../utils/constants';
+import Confetti from 'react-dom-confetti';
+
+const config = {
+  angle: "180",
+  spread: 300,
+  startVelocity: "30",
+  elementCount: 70,
+  dragFriction: 0.12,
+  duration: "2000",
+  stagger: "2",
+  width: "10px",
+  height: "10px",
+  perspective: "900px",
+  colors: ["#a864fd", "#29cdff", "#78ff44", "#ff718d", "#fdff6a"]
+};
+
 
 function Statistics({
   isOpen,
@@ -15,6 +31,7 @@ function Statistics({
   if (!isOpen) return null;
 
   const [counts, setCounts] = useState({});
+  const [showConfetti, setShowConfetti] = useState(null);
 
   useEffect(() => {
     // Ensure guessDistribution is always an array
@@ -27,94 +44,111 @@ function Statistics({
     }, {});
 
     setCounts(newCounts);
-  }, [guessDistribution]);
+
+    if (gameWon && afterGame) {
+      setShowConfetti(true);
+    }
+
+  }, []);
 
   // Maximum count for scaling bar widths
   const maxCount = Math.max(...Object.values(counts), 1);
 
   return (
-    <ModalOverlay onClick={onClose}>
-      <ModalContent onClick={(e) => e.stopPropagation()}>
-        <CloseButton onClick={onClose}>✕</CloseButton>
+    <>
+      <ModalOverlay onClick={onClose}>
+        <ModalContent onClick={(e) => e.stopPropagation()}>
+          <CloseButton onClick={onClose}>✕</CloseButton>
 
-        {afterGame && gameWon &&
-          <>
-            <Note>
-              <h2>Congratulations!!!</h2>
-            </Note>
-            <hr />
-          </>
+          {afterGame && gameWon &&
+            <>
+              <Note>
+                <h2>Congratulations!!!</h2>
+              </Note>
+              <hr />
+            </>
 
-        }
-        {afterGame && gameLost &&
-          <>
-            <Note>
-              <h2>Thanks for playing today!!</h2>
-            </Note>
-            <hr />
-          </>
-        }
+          }
+          {afterGame && gameLost &&
+            <>
+              <Note>
+                <h2>Thanks for playing today!!</h2>
+              </Note>
+              <hr />
+            </>
+          }
 
-        <h2>Statistics</h2>
-        <hr />
+          <h2>Statistics</h2>
+          <hr />
 
-        <StatsBar>
-          <div>
-            <StatValue>{statsObj.gamesPlayed}</StatValue>
-            <StatLabel>Played</StatLabel>
+          <StatsBar>
+            <div>
+              <StatValue>{statsObj.gamesPlayed}</StatValue>
+              <StatLabel>Played</StatLabel>
+            </div>
+            <div>
+              <StatValue>{statsObj.gamesWon}</StatValue>
+              <StatLabel>Won</StatLabel>
+            </div>
+            <div>
+              <StatValue>
+                {statsObj.gamesPlayed > 0
+                  ? Math.round((statsObj.gamesWon / statsObj.gamesPlayed) * 100)
+                  : 0}
+              </StatValue>
+              <StatLabel>Win %</StatLabel>
+            </div>
+            <div>
+              <StatValue>{statsObj.currentStreak}</StatValue>
+              <StatLabel>Current Streak</StatLabel>
+            </div>
+            <div>
+              <StatValue>{statsObj.maxStreak}</StatValue>
+              <StatLabel>Max Streak</StatLabel>
+            </div>
+          </StatsBar>
+
+          <hr />
+          <h3>Guess Distribution</h3>
+
+          <div className="guess-distribution">
+            {range(1, MAX_ATTEMPTS + 1).map((guessNumber) => {
+              const count = counts[guessNumber] || 0;
+              const totalGuesses = Object.values(counts).reduce((a, b) => a + b, 0) || 1;
+
+              // Width is literally the percentage of total guesses
+              const widthPercent = Math.round((count / totalGuesses) * 100);
+
+              return (
+                <GuessBarRow key={guessNumber}>
+                  {/* Guess number */}
+                  <div className="guess-number w-8 text-right font-bold">{guessNumber}</div>
+
+                  {/* Bar container */}
+                  <BarContainer>
+                    {/* Bar fills widthPercent of container */}
+                    <Bar style={{ width: `${widthPercent}%` }} />
+
+                    {/* Count immediately after bar */}
+                    <Count>{widthPercent}%</Count>
+                  </BarContainer>
+                </GuessBarRow>
+              );
+            })}
           </div>
-          <div>
-            <StatValue>{statsObj.gamesWon}</StatValue>
-            <StatLabel>Won</StatLabel>
-          </div>
-          <div>
-            <StatValue>
-              {statsObj.gamesPlayed > 0
-                ? Math.round((statsObj.gamesWon / statsObj.gamesPlayed) * 100)
-                : 0}
-            </StatValue>
-            <StatLabel>Win %</StatLabel>
-          </div>
-          <div>
-            <StatValue>{statsObj.currentStreak}</StatValue>
-            <StatLabel>Current Streak</StatLabel>
-          </div>
-          <div>
-            <StatValue>{statsObj.maxStreak}</StatValue>
-            <StatLabel>Max Streak</StatLabel>
-          </div>
-        </StatsBar>
-
-        <hr />
-        <h3>Guess Distribution</h3>
-
-        <div className="guess-distribution">
-          {range(1, MAX_ATTEMPTS + 1).map((guessNumber) => {
-            const count = counts[guessNumber] || 0;
-            const totalGuesses = Object.values(counts).reduce((a, b) => a + b, 0) || 1;
-
-            // Width is literally the percentage of total guesses
-            const widthPercent = Math.round((count / totalGuesses) * 100);
-
-            return (
-              <GuessBarRow key={guessNumber}>
-                {/* Guess number */}
-                <div className="guess-number w-8 text-right font-bold">{guessNumber}</div>
-
-                {/* Bar container */}
-                <BarContainer>
-                  {/* Bar fills widthPercent of container */}
-                  <Bar style={{ width: `${widthPercent}%` }} />
-
-                  {/* Count immediately after bar */}
-                  <Count>{widthPercent}%</Count>
-                </BarContainer>
-              </GuessBarRow>
-            );
-          })}
+        </ModalContent>
+        <div
+          className="flex justify-center"
+          style={{
+            position: "absolute",
+            top: "55%",
+            left: "50%"
+          }}>
+          <Confetti active={showConfetti} config={config} />
         </div>
-      </ModalContent>
-    </ModalOverlay>
+      </ModalOverlay>
+
+    </>
   );
 }
 
@@ -141,10 +175,17 @@ const ModalContent = styled.div`
   box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
   text-align: left;
 
-  h2 {
+    h1 {
     font-size: 32px;
     font-weight: 700;
     font-family: Rockwell, serif;
+  }
+
+  h2 {
+    font-size: 16px;
+    font-weight: 700;
+    font-family: Rockwell, serif;
+    text-transform: uppercase;
   }
 
   h3 {
