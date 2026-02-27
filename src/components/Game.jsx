@@ -7,21 +7,6 @@ import { MAX_ATTEMPTS, ROWS, COLS, CORRECT, WRONG } from '../utils/constants';
 import { useLocalStorage, useLocalStorageSet } from '../utils/storage';
 import Statistics from './Statistics';
 
-
-const config = {
-    angle: "180",
-    spread: 300,
-    startVelocity: "30",
-    elementCount: 70,
-    dragFriction: 0.12,
-    duration: "2000",
-    stagger: "2",
-    width: "10px",
-    height: "10px",
-    perspective: "900px",
-    colors: ["#a864fd", "#29cdff", "#78ff44", "#ff718d", "#fdff6a"]
-};
-
 // function Game(imageUrl, names, setNames, correctAnswer) {
 
 const Game = ({
@@ -41,7 +26,6 @@ const Game = ({
     const [gameWon, setGameWon] = useLocalStorage("gameWon", false);
     const [gameLost, setGameLost] = useLocalStorage("gameLost", false);
     const [submittedValue, setSubmittedValue] = useState(null);
-    const [showConfetti, setShowConfetti] = useState(null);
     const [clickedBoxes, setClickedBoxes] = useLocalStorageSet("clickedBoxes", new Set());
     const [disableGrid, setDisableGrid] = useLocalStorage("disableGrid", false);
     const [submitCount, setSubmitCount] = useState(0);
@@ -77,7 +61,6 @@ const Game = ({
             setGameLost(false);
             setGameWon(false);
             setGameOver(false);
-            setShowConfetti(false);
             setClickedBoxes(new Set());
             setDisableGrid(false);
             setSelectedOptions([])
@@ -140,7 +123,6 @@ const Game = ({
                     setGameOver(true);
                     setShowStats(true);
                     setGameWon(true);
-                    setShowConfetti(true);
                     setDisableGrid(false);
 
                     setSelectedOptionsEmoji(prev => {
@@ -175,7 +157,6 @@ const Game = ({
 
                 setGameWon(true);
                 setGameLost(false);
-                setShowConfetti(true);
                 setDisableGrid(false);
 
                 setSelectedOptionsEmoji(prev => {
@@ -390,15 +371,7 @@ const Game = ({
                 }
 
             </Wrap>
-            <div
-                className="flex justify-center"
-                style={{
-                    position: "absolute",
-                    top: "55%",
-                    left: "50%"
-                }}>
-                <Confetti active={showConfetti} config={config} />
-            </div>
+            
 
         </>
     )
