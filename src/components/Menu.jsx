@@ -5,7 +5,13 @@ import styled from 'styled-components'
 import Instructions from './Instructions';
 import Statistics from './Statistics';
 
-function Menu() {
+const Menu = ({
+    stats,
+    setStats,
+    statsObj,
+    guessDistribution,
+    setGuessDistribution
+}) => {
     const [showInstructions, setShowInstructions] = useState(false);
     const [showStats, setShowStats] = useState(false);
 
@@ -13,9 +19,9 @@ function Menu() {
     return (
         <>
             <ButtonWrapper>
-                {/* <button onClick={() => setShowStats(true)}>
+                <button onClick={() => setShowStats(true)}>
                     <MdEqualizer />
-                </button> */}
+                </button>
 
                 {/* <button>
                 <MdHistory/>
@@ -27,8 +33,15 @@ function Menu() {
             </ButtonWrapper>
 
             {showStats &&
-                <Statistics isOpen={showStats}
+                <Statistics
+                    isOpen={showStats}
                     onClose={() => setShowStats(false)}
+                    stats={stats}
+                    statsObj={statsObj}
+                    guessDistribution={guessDistribution}
+                    gameWon={false}
+                    gameLost={false}
+                    afterGame={false}
                 />
             }
 

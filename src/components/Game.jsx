@@ -2,9 +2,11 @@
 import React, { useState, useEffect } from 'react';
 import styled from 'styled-components';
 import { AsyncPaginate } from 'react-select-async-paginate';
-import { MAX_ATTEMPTS, ROWS, COLS, CORRECT, WRONG } from '../utils/constants';
 import Confetti from "react-dom-confetti";
+import { MAX_ATTEMPTS, ROWS, COLS, CORRECT, WRONG } from '../utils/constants';
 import { useLocalStorage, useLocalStorageSet } from '../utils/storage';
+import Statistics from './Statistics';
+
 
 const config = {
     angle: "180",
@@ -20,7 +22,20 @@ const config = {
     colors: ["#a864fd", "#29cdff", "#78ff44", "#ff718d", "#fdff6a"]
 };
 
-function Game() {
+// function Game(imageUrl, names, setNames, correctAnswer) {
+
+const Game = ({
+    imageUrl,
+    names,
+    correctAnswer,
+    stats,
+    setStats,
+    statsObj,
+    guessDistribution,
+    setGuessDistribution
+}) => {
+
+
     const [value, setValue] = useState(null);
     const [gameOver, setGameOver] = useLocalStorage("gameOver", false);
     const [gameWon, setGameWon] = useLocalStorage("gameWon", false);
@@ -30,33 +45,22 @@ function Game() {
     const [clickedBoxes, setClickedBoxes] = useLocalStorageSet("clickedBoxes", new Set());
     const [disableGrid, setDisableGrid] = useLocalStorage("disableGrid", false);
     const [submitCount, setSubmitCount] = useState(0);
-    const [imageUrl, setImageUrl] = useState(null);
-    const [correctAnswer, setCorrectAnswer] = useState(null);
-    const [names, setNames] = useState(null);
     const [selectedOptions, setSelectedOptions] = useLocalStorage("selectedOptions", []);
     const [selectedOptionsEmoji, setSelectedOptionsEmoji] = useLocalStorage("selectedOptionsEmoji", []);
     const [revealAll, setRevealAll] = useLocalStorage("revealAll", false);
-    const [guessDistribution, setGuessDistribution] = useLocalStorageSet("guessDistribution", []);
     const [date, setDate] = useLocalStorage("date", "01/01/2026")
+    const [showStats, setShowStats] = useState(false);
 
-    const initialStats = {
-        gamesPlayed: 0,
-        gamesWon: 0,
-        currentStreak: 0,
-        maxStreak: 0
-    };
-
-    const [stats, setStats] = useLocalStorage("stats", JSON.stringify(initialStats));
-    const statsObj = React.useMemo(() => {
-        return typeof stats === "string" ? JSON.parse(stats) : stats;
-    }, [stats]);
-
-
+    // console.log(imageUrl)
 
     const rows = ROWS;
     const cols = COLS;
 
     const total = rows * cols;
+
+
+
+
 
     useEffect(() => {
 
@@ -81,70 +85,8 @@ function Game() {
             setRevealAll(false);
         }
 
-        // console.log("start", new Date())
-        const fetchGameData = async () => {
-            try {
-                const gameDataUrl = import.meta.env.VITE_GAME_DATA_URL;
-                const namesDataUrl = import.meta.env.VITE_NAMES_DATA_URL;
+        // fetchGameData();
 
-                if (!gameDataUrl || !namesDataUrl) {
-                    console.error("Env variables not set");
-                    return;
-                }
-
-                // ✅ Fetch both at same time
-                const [res1, res2] = await Promise.all([
-                    fetch(gameDataUrl),
-                    fetch(namesDataUrl)
-                ]);
-
-                const [data, namesData] = await Promise.all([
-                    res1.json(),
-                    res2.json()
-                ]);
-
-                const formatted = namesData.map(item => item.Celebrities);
-
-                // console.log(formatted);
-                setNames(formatted);
-
-                // Get today's date in DD/MM/YYYY format
-
-
-                const todayRow = data.find(row => row.Date === formattedDate);
-
-                if (todayRow) {
-                    const driveLink = todayRow.Image;
-                    // console.log("Drive Link from sheet:", driveLink);
-
-                    // Extract Google Drive file ID from common formats
-                    let fileId =
-                        driveLink.match(/id=([^&]+)/)?.[1] ||  // ?id=FILEID
-                        driveLink.match(/\/d\/([^\/]+)/)?.[1]; // /d/FILEID/
-
-                    // console.log("Extracted File ID:", fileId);
-
-                    if (fileId) {
-
-                        const finalUrl = fileId
-                            ? `https://lh3.googleusercontent.com/d/${fileId}`
-                            : "";
-
-                        setImageUrl(finalUrl);
-                        // console.log("Final Image URL:", finalUrl);
-                    } else {
-                        console.warn("Could not extract Drive ID from:", driveLink);
-                    }
-                    // console.log(todayRow.Answer)
-                    setCorrectAnswer(todayRow.Answer);
-                } else {
-                    console.log("No game data for today:", formattedDate);
-                }
-            } catch (error) {
-                console.error("Error loading data:", error);
-            }
-        };
-        fetchGameData();
         // console.log("end", new Date())
         // console.log("gamewon ", gameWon);
         // console.log("gameLost ", gameLost)
@@ -196,6 +138,7 @@ function Game() {
                 //Game won
                 if (value.value === correctAnswer) {
                     setGameOver(true);
+                    setShowStats(true);
                     setGameWon(true);
                     setShowConfetti(true);
                     setDisableGrid(false);
@@ -212,9 +155,10 @@ function Game() {
                             maxStreak: statsObj.maxStreak + 1
                         })
                     );
-                    setGuessDistribution([...guessDistribution,count])
-                    console.log("count", count)
 
+                    // console.log("guessDistribution", guessDistribution)
+
+                    setGuessDistribution([...guessDistribution, count])
                 }
                 else {
                     setDisableGrid(false);
@@ -227,6 +171,8 @@ function Game() {
 
             else if (count === MAX_ATTEMPTS && value.value === correctAnswer) {
                 setGameOver(true);
+                setShowStats(true);
+
                 setGameWon(true);
                 setGameLost(false);
                 setShowConfetti(true);
@@ -244,13 +190,14 @@ function Game() {
                         maxStreak: statsObj.maxStreak + 1
                     })
                 );
-                setGuessDistribution([...guessDistribution,count])
-                                    console.log("count", count)
+                setGuessDistribution([...guessDistribution, count])
+                console.log("count", count)
 
             }
 
             else if (count === MAX_ATTEMPTS && value.value != correctAnswer) {
                 setGameOver(true);
+                setShowStats(true);
                 setGameLost(true);
                 setDisableGrid(false);
 
@@ -426,7 +373,22 @@ function Game() {
                             Game Won!!!
                         </div>
                     </div>
+
                 )}
+
+                {showStats &&
+                    <Statistics
+                        isOpen={showStats}
+                        onClose={() => setShowStats(false)}
+                        stats={stats}
+                        statsObj={statsObj}
+                        guessDistribution={guessDistribution}
+                        gameWon={gameWon}
+                        gameLost={gameLost}
+                        afterGame={true}
+                    />
+                }
+
             </Wrap>
             <div
                 className="flex justify-center"
@@ -546,4 +508,6 @@ const GridBox = styled.div`
 const DisplaySelectedOptions = styled.div`
   display: flex;
   flex-direction: column;
+  text-align:left;
+  align-items: flex-start !important;
 `;
