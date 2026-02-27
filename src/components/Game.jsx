@@ -36,8 +36,22 @@ function Game() {
     const [selectedOptions, setSelectedOptions] = useLocalStorage("selectedOptions", []);
     const [selectedOptionsEmoji, setSelectedOptionsEmoji] = useLocalStorage("selectedOptionsEmoji", []);
     const [revealAll, setRevealAll] = useLocalStorage("revealAll", false);
-    // const [guessDistribution, setGuessDistribution] = useLocalStorageSet("guessDistribution", []);
+    const [guessDistribution, setGuessDistribution] = useLocalStorageSet("guessDistribution", []);
     const [date, setDate] = useLocalStorage("date", "01/01/2026")
+
+    const initialStats = {
+        gamesPlayed: 0,
+        gamesWon: 0,
+        currentStreak: 0,
+        maxStreak: 0
+    };
+
+    const [stats, setStats] = useLocalStorage("stats", JSON.stringify(initialStats));
+    const statsObj = React.useMemo(() => {
+        return typeof stats === "string" ? JSON.parse(stats) : stats;
+    }, [stats]);
+
+
 
     const rows = ROWS;
     const cols = COLS;
@@ -53,8 +67,8 @@ function Game() {
 
         // console.log(formattedDate);
 
-        if(date!=formattedDate){
-        // if (date === "26/02/2026") {
+        if (date != formattedDate) {
+            // if (date === "26/02/2026") {
             setDate(formattedDate);
             setGameLost(false);
             setGameWon(false);
@@ -190,6 +204,17 @@ function Game() {
                         return [...prev, CORRECT];
                     });
 
+                    setStats(
+                        JSON.stringify({
+                            gamesPlayed: statsObj.gamesPlayed + 1,
+                            gamesWon: statsObj.gamesWon + 1,
+                            currentStreak: statsObj.maxStreak + 1,
+                            maxStreak: statsObj.maxStreak + 1
+                        })
+                    );
+                    setGuessDistribution([...guessDistribution,count])
+                    console.log("count", count)
+
                 }
                 else {
                     setDisableGrid(false);
@@ -210,6 +235,18 @@ function Game() {
                 setSelectedOptionsEmoji(prev => {
                     return [...prev, CORRECT];
                 });
+
+                setStats(
+                    JSON.stringify({
+                        gamesPlayed: statsObj.gamesPlayed + 1,
+                        gamesWon: statsObj.gamesWon + 1,
+                        currentStreak: statsObj.maxStreak + 1,
+                        maxStreak: statsObj.maxStreak + 1
+                    })
+                );
+                setGuessDistribution([...guessDistribution,count])
+                                    console.log("count", count)
+
             }
 
             else if (count === MAX_ATTEMPTS && value.value != correctAnswer) {
@@ -220,6 +257,15 @@ function Game() {
                 setSelectedOptionsEmoji(prev => {
                     return [...prev, WRONG];
                 });
+
+                setStats(
+                    JSON.stringify({
+                        gamesPlayed: statsObj.gamesPlayed + 1,
+                        gamesWon: statsObj.gamesWon,
+                        currentStreak: 0,
+                        maxStreak: statsObj.maxStreak
+                    })
+                );
             }
 
             // console.log(disableGrid);
@@ -273,7 +319,7 @@ function Game() {
             return newSet;
 
         });
-        console.log(clickedBoxes);
+        // console.log(clickedBoxes);
 
 
         if (gameOver) {
