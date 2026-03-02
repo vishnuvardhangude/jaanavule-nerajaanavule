@@ -196,7 +196,7 @@ const ModalContent = styled.div`
   }
 
   h2 {
-    font-size: 16px;
+    font-size: 20px;
     font-weight: 700;
     font-family: Rockwell, serif;
     text-transform: uppercase;
@@ -262,13 +262,14 @@ const BarContainer = styled.div`
   align-items: center;
   height: 24px;
   background-color: #ffffff; /* gray background */
-  border-radius: 4px;
+  border-radius: 4px; 
   margin: 0 8px;
 `;
 
 const Bar = styled.div`
   height: 100%;
-  background-color: #10b981; /* green */
+  // background-color: #10b981; /* green */
+  background-color: #000000; /* green */
   border-radius: 2px; /* rounded only on left */
 `;
 
