@@ -25,7 +25,7 @@ const ShareResults = ({
     };
 
     const shareText = `Jaanavule Nerajaanavule Game ${gameNumber}${mode==="daily" ? "" : "(Time Travelled)"}\
-: ${gameWon ? "0" : submitCount}/5\n\n${selectedOptionsEmoji.join("")}\n\n${SITE_URL}\n#JaanavuleNerajaanavule  #JaaNeja`;
+: ${gameWon ? submitCount:"0" }/5\n\n${selectedOptionsEmoji.join("")}\n\n${SITE_URL}\n#JaanavuleNerajaanavule  #JaaNeja`;
 
 
     return (
