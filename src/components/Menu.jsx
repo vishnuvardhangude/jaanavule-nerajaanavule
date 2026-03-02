@@ -4,6 +4,8 @@ import { MdEqualizer, MdHistory, MdHelpOutline } from 'react-icons/md'
 import styled from 'styled-components'
 import Instructions from './Instructions';
 import Statistics from './Statistics';
+import { useNavigate } from "react-router-dom";
+
 
 const Menu = ({
     stats,
@@ -16,6 +18,8 @@ const Menu = ({
     const [showStats, setShowStats] = useState(false);
 
 
+    const navigate = useNavigate();
+
     return (
         <>
             <ButtonWrapper>
@@ -23,9 +27,9 @@ const Menu = ({
                     <MdEqualizer />
                 </button>
 
-                {/* <button>
-                <MdHistory/>
-            </button> */}
+                <button onClick={() => navigate("/timetravel")}>
+                    <MdHistory />
+                </button>
 
                 <button onClick={() => setShowInstructions(true)}>
                     <MdHelpOutline />
@@ -71,7 +75,7 @@ const ButtonWrapper = styled.div`
         flex-shrink: 0;
         margin: 15px;
         background-color: rgba(255, 255, 255, 0.8);
-        color: white;
+        color: black;
         // border-radius: 5px;
         opacity: 1.0;
         text-transform: uppercase;

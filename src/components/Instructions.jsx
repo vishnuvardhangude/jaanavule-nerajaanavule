@@ -53,7 +53,8 @@ function Instructions({ isOpen, onClose }) {
 
                 <ul>
                     <li>Click a tile to reveal part of the image and guess the Celebrity.</li>
-                    <li>If you're unsure, reveal more tiles.</li>
+                    <li>Enter Celebrity name and click on Submit.</li>
+                    <li>If you're unsure, click on Skip and reveal more tiles.</li>
                 </ul>
 
                 <hr />
@@ -81,14 +82,20 @@ function Instructions({ isOpen, onClose }) {
 
 export default Instructions
 
+
 const ModalOverlay = styled.div`
   position: fixed;
-  inset: 0;
+  top: 0;
+  left: 0;
+  width: 100vw;
+  height: 100vh; /* make it exactly viewport height */
   background-color: rgba(0, 0, 0, 0.5);
   display: flex;
   justify-content: center;
+  align-items: center; /* center modal vertically */
   z-index: 50;
-`
+`;
+
 
 const ModalContent = styled.div`
   background-color: white;

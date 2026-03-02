@@ -156,12 +156,26 @@ export default Statistics;
 
 /* Styled Components */
 
+// const ModalOverlay = styled.div`
+//   position: fixed;
+//   // inset: 0;
+//   // width: 100wh;
+//   background-color: rgba(0, 0, 0, 0.5);
+//   display: flex;
+//   justify-content: center;
+//   z-index: 50;
+// `;
+
 const ModalOverlay = styled.div`
   position: fixed;
-  inset: 0;
+  top: 0;
+  left: 0;
+  width: 100vw;
+  height: 100vh; /* make it exactly viewport height */
   background-color: rgba(0, 0, 0, 0.5);
   display: flex;
   justify-content: center;
+  align-items: center; /* center modal vertically */
   z-index: 50;
 `;
 
