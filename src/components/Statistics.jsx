@@ -262,7 +262,7 @@ const BarContainer = styled.div`
   align-items: center;
   height: 24px;
   background-color: #ffffff; /* gray background */
-  border-radius: 4px;
+  border-radius: 4px; 
   margin: 0 8px;
 `;
 
