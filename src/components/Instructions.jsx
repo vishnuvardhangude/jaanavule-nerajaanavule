@@ -171,7 +171,8 @@ const Tile = styled.div`
   justify-content: center;
   border-radius: 3px;
 //   background-color: #22c55e;
-    background-color: #4f46e5; 
+    // background-color: #4f46e5; 
+    background-color: #000000; 
     color: white;
 
   transition: opacity 0.1s ease;
