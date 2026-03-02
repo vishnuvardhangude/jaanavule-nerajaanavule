@@ -6,8 +6,25 @@ import Confetti from "react-dom-confetti";
 import { MAX_ATTEMPTS, ROWS, COLS, CORRECT, WRONG } from '../utils/constants';
 import { useLocalStorage, useLocalStorageSet } from '../utils/storage';
 import Statistics from './Statistics';
+import ShareResults from './ShareResults';
+
 
 // function Game(imageUrl, names, setNames, correctAnswer) {
+
+
+const config = {
+    angle: "180",
+    spread: 300,
+    startVelocity: "30",
+    elementCount: 70,
+    dragFriction: 0.12,
+    duration: "2000",
+    stagger: "2",
+    width: "10px",
+    height: "10px",
+    perspective: "900px",
+    colors: ["#a864fd", "#29cdff", "#78ff44", "#ff718d", "#fdff6a"]
+};
 
 const Game = ({
     imageUrl,
@@ -17,23 +34,43 @@ const Game = ({
     setStats,
     statsObj,
     guessDistribution,
-    setGuessDistribution
+    setGuessDistribution,
+    formattedDate,
+    setFormattedDate,
+    gameNumber,
+    mode = "daily"
 }) => {
+
+    const [revealAll, setRevealAll] = mode === "daily"
+        ? useLocalStorage("revealAll", false) : useState(false);
+
+    const [today, setToday] = useLocalStorage("today", "01/01/2026");
+
+
+    const [selectedOptions, setSelectedOptions] = mode === "daily"
+        ? useLocalStorage("selectedOptions", []) : useState([]);
+    const [selectedOptionsEmoji, setSelectedOptionsEmoji] = mode === "daily"
+        ? useLocalStorage("selectedOptionsEmoji", []) : useState([]);
+    const [clickedBoxes, setClickedBoxes] = mode === "daily"
+        ? useLocalStorageSet("clickedBoxes", new Set()) : useState(new Set());
+    const [disableGrid, setDisableGrid] = mode === "daily"
+        ? useLocalStorage("disableGrid", false) : useState(false);
+    const [gameOver, setGameOver] = mode === "daily"
+        ? useLocalStorage("gameOver", false) : useState(false);
+    const [gameWon, setGameWon] = mode === "daily"
+        ? useLocalStorage("gameWon", false) : useState(false);
+    const [gameLost, setGameLost] = mode === "daily"
+        ? useLocalStorage("gameLost", false) : useState(false);
+    const [submitCount, setSubmitCount] = mode === "daily"
+        ? useLocalStorage("submitCount", false) : useState(0);
+        
 
 
     const [value, setValue] = useState(null);
-    const [gameOver, setGameOver] = useLocalStorage("gameOver", false);
-    const [gameWon, setGameWon] = useLocalStorage("gameWon", false);
-    const [gameLost, setGameLost] = useLocalStorage("gameLost", false);
     const [submittedValue, setSubmittedValue] = useState(null);
-    const [clickedBoxes, setClickedBoxes] = useLocalStorageSet("clickedBoxes", new Set());
-    const [disableGrid, setDisableGrid] = useLocalStorage("disableGrid", false);
-    const [submitCount, setSubmitCount] = useState(0);
-    const [selectedOptions, setSelectedOptions] = useLocalStorage("selectedOptions", []);
-    const [selectedOptionsEmoji, setSelectedOptionsEmoji] = useLocalStorage("selectedOptionsEmoji", []);
-    const [revealAll, setRevealAll] = useLocalStorage("revealAll", false);
-    const [date, setDate] = useLocalStorage("date", "01/01/2026")
     const [showStats, setShowStats] = useState(false);
+    const [showConfetti, setShowConfetti] = useState(null);
+
 
     // console.log(imageUrl)
 
@@ -43,36 +80,38 @@ const Game = ({
     const total = rows * cols;
 
 
-
-
+    const resetGame = () => {
+        setGameLost(false);
+        setGameWon(false);
+        setGameOver(false);
+        setClickedBoxes(new Set());
+        setDisableGrid(false);
+        setSelectedOptions([]);
+        setSelectedOptionsEmoji([]);
+        setRevealAll(false);
+    };
 
     useEffect(() => {
 
-        const today = new Date();
-        const formattedDate = `${String(today.getDate()).padStart(2, "0")}/${String(
-            today.getMonth() + 1
-        ).padStart(2, "0")}/${today.getFullYear()}`;
+        console.log("useeffect Game.jsx ", today, formattedDate)
 
-        // console.log(formattedDate);
-
-        if (date != formattedDate) {
-            // if (date === "26/02/2026") {
-            setDate(formattedDate);
-            setGameLost(false);
-            setGameWon(false);
-            setGameOver(false);
-            setClickedBoxes(new Set());
-            setDisableGrid(false);
-            setSelectedOptions([])
-            setSelectedOptionsEmoji([])
-            setRevealAll(false);
+        if (mode !== "daily") {
+            return;
         }
 
-        // fetchGameData();
+        const realToday = new Date();
+        const todayString = `${String(realToday.getDate()).padStart(2, "0")}/${String(
+            realToday.getMonth() + 1
+        ).padStart(2, "0")}/${realToday.getFullYear()}`;
 
-        // console.log("end", new Date())
-        // console.log("gamewon ", gameWon);
-        // console.log("gameLost ", gameLost)
+        // setToday(todayString);
+        console.log("formattedDate", formattedDate);
+        console.log("today", todayString)
+
+        if (formattedDate !== todayString) {
+            resetGame();
+            setFormattedDate(todayString);
+        }
 
     }, []);
 
@@ -125,22 +164,26 @@ const Game = ({
                     setGameWon(true);
                     setDisableGrid(false);
 
+                    setShowConfetti(true);
+
                     setSelectedOptionsEmoji(prev => {
                         return [...prev, CORRECT];
                     });
 
-                    setStats(
-                        JSON.stringify({
-                            gamesPlayed: statsObj.gamesPlayed + 1,
-                            gamesWon: statsObj.gamesWon + 1,
-                            currentStreak: statsObj.maxStreak + 1,
-                            maxStreak: statsObj.maxStreak + 1
-                        })
-                    );
+                    if (mode === "daily") {
+                        setStats(
+                            JSON.stringify({
+                                gamesPlayed: statsObj.gamesPlayed + 1,
+                                gamesWon: statsObj.gamesWon + 1,
+                                currentStreak: statsObj.maxStreak + 1,
+                                maxStreak: statsObj.maxStreak + 1
+                            })
+                        );
 
-                    // console.log("guessDistribution", guessDistribution)
+                        // console.log("guessDistribution", guessDistribution)
 
-                    setGuessDistribution([...guessDistribution, count])
+                        setGuessDistribution([...guessDistribution, count])
+                    }
                 }
                 else {
                     setDisableGrid(false);
@@ -156,6 +199,8 @@ const Game = ({
                 setShowStats(true);
 
                 setGameWon(true);
+                setShowConfetti(true);
+
                 setGameLost(false);
                 setDisableGrid(false);
 
@@ -163,16 +208,18 @@ const Game = ({
                     return [...prev, CORRECT];
                 });
 
-                setStats(
-                    JSON.stringify({
-                        gamesPlayed: statsObj.gamesPlayed + 1,
-                        gamesWon: statsObj.gamesWon + 1,
-                        currentStreak: statsObj.maxStreak + 1,
-                        maxStreak: statsObj.maxStreak + 1
-                    })
-                );
-                setGuessDistribution([...guessDistribution, count])
-                console.log("count", count)
+                if (mode === "daily") {
+                    setStats(
+                        JSON.stringify({
+                            gamesPlayed: statsObj.gamesPlayed + 1,
+                            gamesWon: statsObj.gamesWon + 1,
+                            currentStreak: statsObj.maxStreak + 1,
+                            maxStreak: statsObj.maxStreak + 1
+                        })
+                    );
+                    setGuessDistribution([...guessDistribution, count])
+                }
+                // console.log("count", count)
 
             }
 
@@ -186,14 +233,16 @@ const Game = ({
                     return [...prev, WRONG];
                 });
 
-                setStats(
-                    JSON.stringify({
-                        gamesPlayed: statsObj.gamesPlayed + 1,
-                        gamesWon: statsObj.gamesWon,
-                        currentStreak: 0,
-                        maxStreak: statsObj.maxStreak
-                    })
-                );
+                if (mode === "daily") {
+                    setStats(
+                        JSON.stringify({
+                            gamesPlayed: statsObj.gamesPlayed + 1,
+                            gamesWon: statsObj.gamesWon,
+                            currentStreak: 0,
+                            maxStreak: statsObj.maxStreak
+                        })
+                    );
+                }
             }
 
             // console.log(disableGrid);
@@ -233,6 +282,18 @@ const Game = ({
             setGameOver(true);
             setGameLost(true);
             setDisableGrid(false);
+            setShowStats(true);
+
+            if (mode === "daily") {
+                setStats(
+                    JSON.stringify({
+                        gamesPlayed: statsObj.gamesPlayed + 1,
+                        gamesWon: statsObj.gamesWon,
+                        currentStreak: 0,
+                        maxStreak: statsObj.maxStreak
+                    })
+                );
+            }
         }
 
     };
@@ -274,10 +335,15 @@ const Game = ({
 
                     {imageUrl ? (
                         <img
+                            key={imageUrl}
+
                             src={imageUrl}
                             alt="game visual"
                             style={{ maxWidth: "100%" }}
                             onError={(e) => {
+                                // console.error(e)
+                                // console.error("Image failed:", e.target.src);
+
                                 console.error("Image failed to load:", imageUrl);
                                 // e.target.src = {imageUrl}; // Fallback to local image
                             }}
@@ -323,20 +389,24 @@ const Game = ({
                                     Reveal Image
                                 </button>
                             }
+                            
                         </Buttons>
+                        
                     </SearchBar>
+                    {selectedOptions.length > 0 && (
+                            <DisplaySelectedOptions style={{ marginTop: "10px" }}>
+                                {/* <div>Selected:</div> */}
+                                {selectedOptions.map((name, idx) => (
+                                    <div key={idx} style={{ marginTop: "10px" }}>
+                                        {selectedOptionsEmoji[idx]} {name}
+                                    </div>
+                                ))}
+                            </DisplaySelectedOptions>
+                        )}
+
                 </div>
 
-                {selectedOptions.length > 0 && (
-                    <DisplaySelectedOptions style={{ marginTop: "10px" }}>
-                        {/* <div>Selected:</div> */}
-                        {selectedOptions.map((name, idx) => (
-                            <div key={idx}>
-                                {selectedOptionsEmoji[idx]} {name}
-                            </div>
-                        ))}
-                    </DisplaySelectedOptions>
-                )}
+
 
                 {gameLost && (
                     <div style={{ marginTop: "10px" }}>
@@ -357,7 +427,7 @@ const Game = ({
 
                 )}
 
-                {showStats &&
+                {mode === "daily" && gameOver &&
                     <Statistics
                         isOpen={showStats}
                         onClose={() => setShowStats(false)}
@@ -369,9 +439,29 @@ const Game = ({
                         afterGame={true}
                     />
                 }
+                <div
+                    className="flex justify-center"
+                    style={{
+                        position: "absolute",
+                        top: "55%",
+                        left: "50%"
+                    }}>
+                    <Confetti active={showConfetti} config={config} />
+                </div>
+
+                {gameOver && 
+                    <ShareResults 
+                        formattedDate={formattedDate}
+                        gameWon={gameWon}
+                        selectedOptionsEmoji={selectedOptionsEmoji}
+                        gameNumber={gameNumber}
+                        mode={mode}
+                        submitCount={submitCount}
+                    />
+                }
 
             </Wrap>
-            
+
 
         </>
     )
@@ -399,11 +489,13 @@ const Buttons = styled.div`
     align-items: center;
 
     button {
-        width: 100px;
+        width: 110px;
         height: 30px;
         flex-shrink: 0;
         margin: 3px;
-        background-color: rgba(12, 87, 236, 0.8);
+        // background-color: rgba(12, 87, 236, 0.8);
+        background-color: rgba(0, 0, 0, 0.8);
+
         color: white;
         border-radius: 5px;
         opacity: 1.0;
@@ -436,21 +528,28 @@ const SearchBar = styled.div`
 const ImageWrapper = styled.div`
   position: relative;
   width: 100%;
-  height: 100%;   /* MUST have height */
-  
+//   height: 100%;   /* MUST have height */
+  max-width: 350px;
+  height: auto;
+  margin: 0 auto;
   img {
     width: 100%;
     height: 100%;
+
     object-fit: cover;
     display: block;
+    // max-height: 700px;
   }
 `;
+
 
 const GridOverlay = styled.div`
   position: absolute;
   inset: 0;
   width: 100%;
-  height: 100%;
+//   height: 100%;
+max-width: 350px;
+height: auto;
   display: grid;
   grid-template-columns: repeat(${props => props.cols}, 1fr);  /* columns */
   grid-template-rows: repeat(${props => props.rows}, 1fr);     /* rows */
@@ -458,7 +557,9 @@ const GridOverlay = styled.div`
 `;
 
 const GridBox = styled.div`
-    background-color: #4f46e5; 
+    // background-color: #4f46e5; 
+    background-color: #000000; 
+
     color: white;
     display: flex;
     justify-content: center;
@@ -467,6 +568,7 @@ const GridBox = styled.div`
     height: 100%;        /* fill the grid cell */
     // font-size: 5px;
     font-size: clamp(2px, 2vw, 15px);
+    // border: black;
     border-radius: 4px;
     cursor: pointer;
     transition: opacity 0.3s ease, transform 0.2s;
@@ -481,6 +583,8 @@ const GridBox = styled.div`
 const DisplaySelectedOptions = styled.div`
   display: flex;
   flex-direction: column;
-  text-align:left;
-  align-items: flex-start !important;
+//   text-align:left;
+//   align-items: flex-start !important;
+margin: 0 auto;
+
 `;
