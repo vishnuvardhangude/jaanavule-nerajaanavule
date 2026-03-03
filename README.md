@@ -1,4 +1,6 @@
-# Celebrity Guessing Game
+# Jaanavule Nerajaanavule
+
+## Celebrity Guessing Game
 
 Welcome to the **Celebrity Guessing Game**! 🎉  
 
@@ -6,7 +8,7 @@ Reveal the tiles and guess who the celebrity is behind them. Test your knowledge
 
 ---
 
-## Instalation
+## Installation
 
 1. Clone the repo
 ```bash
