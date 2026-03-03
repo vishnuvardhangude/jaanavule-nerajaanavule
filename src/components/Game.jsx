@@ -472,7 +472,7 @@ export default Game
 
 const Wrap = styled.div`
   width: 90%;
-  max-width: 500px;   /* prevents too big on desktop */
+  max-width: 350px;   /* prevents too big on desktop */
   min-height: 100vh;
   display: flex;
   flex-direction: column;
