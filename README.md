@@ -26,7 +26,5 @@ npm run dev
 
 ## 🤝 Contributing
 
-Contributions make the open-source community a wonderful place to **learn, inspire, and create**. Any help you provide is greatly appreciated!  
-
 If you have a suggestion to make this game better, feel free to **fork the repo** and create a pull request.  
 If you find a bug, please open an issue with the tag `bug`. For new features or improvements, use the tag `enhancement`.
