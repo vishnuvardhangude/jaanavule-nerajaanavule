@@ -104,12 +104,14 @@ const TimeTravel = ({
 
     <div>
       <Wrap>
-        <BackButton onClick={() => navigate("/")}>
-          ← Back
-        </BackButton>
-        <GameNumber>
-          Game No.: #{gameNo}
-        </GameNumber>
+        <TopRow>
+          <BackButton onClick={() => navigate("/")}>
+            ← Back
+          </BackButton>
+          <GameNumber>
+            You are now Playing Game No.: #{gameNo}
+          </GameNumber>
+        </TopRow>
         <CalendarWrapper>
           <DatePicker
             selected={selectedDate}
@@ -144,38 +146,55 @@ const TimeTravel = ({
 
 export default TimeTravel
 
+// const Wrap = styled.div`
+//   display: flex;
+//   flex-directon: row;
+//   justify-content: space-between;
+//   align-items: center;
+//   max-width: 350px;
+//   margin: 0 auto;
+// `
 const Wrap = styled.div`
-  display: flex;
-  flex-directon: row;
-  justify-content: space-between;
-  align-items: center;
+  width: 100%;
   max-width: 350px;
-  margin: 0 auto;
-`
-/* Styled Component for calendar */
+  margin: 0 auto 5px auto;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+`;
+
+const TopRow = styled.div`
+  display: flex;
+  justify-content: space-between;  /* pushes them apart */
+  align-items: center;
+  width: 100%;
+`;
+
 // const CalendarWrapper = styled.div`
 //   margin-bottom: 16px;
 //   width: 100%;
+//   max-width: 350px;
+
+//   .react-datepicker-wrapper {
+//     width: 100%;
+//   }
+
+//   .react-datepicker__input-container {
+//     width: 100%;
+//   }
+
 //   input {
-//      width: 100%;            /* 👈 makes it full width */
-//     padding: 10px 14px;     /* slightly bigger */
-//     // padding: 8px 12px;
-//     border-radius: 6px;
-//     border: 1px solid #ccc;
-//     font-family: 'Inter', sans-serif;
-//     font-size: 14px;
-//     cursor: pointer;
+//     width: 100%;
+//     padding: 10px 14px;
+//     font-size: 16px;
+//     box-sizing: border-box;
 //   }
 // `;
 
 const CalendarWrapper = styled.div`
-  margin-bottom: 16px;
   width: 100%;
-  max-width: 150px;
-  .react-datepicker-wrapper {
-    width: 100%;
-  }
 
+  .react-datepicker-wrapper,
   .react-datepicker__input-container {
     width: 100%;
   }
@@ -184,14 +203,12 @@ const CalendarWrapper = styled.div`
     width: 100%;
     padding: 10px 14px;
     font-size: 16px;
+    border-radius: 8px;
     box-sizing: border-box;
   }
 `;
 
 const BackButton = styled.button`
-  // position: relative;
-  top: 12px;
-  left: 12px;
   background: none;
   border: none;
   font-size: 16px;
@@ -199,29 +216,45 @@ const BackButton = styled.button`
   font-family: 'Inter', sans-serif;
   font-weight: 600;
   color: #333;
-  align-items: center;
+  padding: 0;
+
   &:hover {
     color: #000;
   }
 `;
 
 const GameNumber = styled.div`
-    
-`
+  font-size: 15px;
+  font-weight: 500;
+  color: #444;
+`;
+
 const CalendarButton = styled.button`
   display: flex;
-  // align-items: center;
-  justify-content: space-between; /* pushes icon to right */
+  align-items: center;
+  justify-content: center; /* center content horizontally */
+  gap: 10px; /* space between icon and text */
   width: 100%;
-  padding: 8px 12px;
-  border-radius: 6px;
+  padding: 10px 14px;
+  font-size: 16px;
+  border-radius: 8px;
   border: 1px solid #ccc;
-  background: white;
+  background-color: #fff;
   cursor: pointer;
-  font-family: 'Inter', sans-serif;
-  font-size: 14px;
+  box-sizing: border-box;
+  color: black;
+  .calendar-icon {
+    position: absolute;
+    left: 14px; /* left padding */
+  }
 
-  &:hover {
-    background: #f3f4f6;
+  .date-text {
+    flex: 1;
+    text-align: center; /* center the date text */
+  }
+
+  /* optional: remove default button styles */
+  &:focus {
+    outline: none;
   }
 `;

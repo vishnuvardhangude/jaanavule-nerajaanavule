@@ -63,7 +63,7 @@ const Game = ({
         ? useLocalStorage("gameLost", false) : useState(false);
     const [submitCount, setSubmitCount] = mode === "daily"
         ? useLocalStorage("submitCount", false) : useState(0);
-        
+
 
 
     const [value, setValue] = useState(null);
@@ -389,20 +389,20 @@ const Game = ({
                                     Reveal Image
                                 </button>
                             }
-                            
+
                         </Buttons>
-                        
+
                     </SearchBar>
                     {selectedOptions.length > 0 && (
-                            <DisplaySelectedOptions style={{ marginTop: "10px" }}>
-                                {/* <div>Selected:</div> */}
-                                {selectedOptions.map((name, idx) => (
-                                    <div key={idx} style={{ marginTop: "10px" }}>
-                                        {selectedOptionsEmoji[idx]} {name}
-                                    </div>
-                                ))}
-                            </DisplaySelectedOptions>
-                        )}
+                        <DisplaySelectedOptions style={{ marginTop: "10px" }}>
+                            {/* <div>Selected:</div> */}
+                            {selectedOptions.map((name, idx) => (
+                                <div key={idx} style={{ marginTop: "10px" }}>
+                                    {selectedOptionsEmoji[idx]} {name}
+                                </div>
+                            ))}
+                        </DisplaySelectedOptions>
+                    )}
 
                 </div>
 
@@ -449,8 +449,8 @@ const Game = ({
                     <Confetti active={showConfetti} config={config} />
                 </div>
 
-                {gameOver && 
-                    <ShareResults 
+                {gameOver &&
+                    <ShareResults
                         formattedDate={formattedDate}
                         gameWon={gameWon}
                         selectedOptionsEmoji={selectedOptionsEmoji}
@@ -471,7 +471,7 @@ export default Game
 
 
 const Wrap = styled.div`
-  width: 90%;
+  width: 100%;
   max-width: 350px;   /* prevents too big on desktop */
   min-height: 100vh;
   display: flex;
@@ -480,6 +480,7 @@ const Wrap = styled.div`
   margin: 0 auto;
   gap: 1rem;
 `;
+
 
 const Buttons = styled.div`
     display: flex;
@@ -513,7 +514,8 @@ const Buttons = styled.div`
 
 
 const SearchBar = styled.div`
-    width: 350px;
+    width: 100%    
+    max-width: 350px;
     // display: flex;
     gap: 10px;
     margin: 1px auto;
@@ -525,6 +527,7 @@ const SearchBar = styled.div`
 `;
 
 
+
 const ImageWrapper = styled.div`
   position: relative;
   width: 100%;
@@ -534,7 +537,8 @@ const ImageWrapper = styled.div`
   margin: 0 auto;
   img {
     width: 100%;
-    height: 100%;
+    // height: 100%;
+    height: auto;
 
     object-fit: cover;
     display: block;
