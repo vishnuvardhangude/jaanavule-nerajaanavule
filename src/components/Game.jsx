@@ -482,36 +482,80 @@ const Wrap = styled.div`
 `;
 
 
+// const Buttons = styled.div`
+//     display: flex;
+//     flex-direction: row;
+//     justify-content: center;
+//     margin: 2px auto;
+//     align-items: center;
+
+//     button {
+//         width: 110px;
+//         height: 30px;
+//         flex-shrink: 0;
+//         margin: 3px;
+//         // background-color: rgba(12, 87, 236, 0.8);
+//         background-color: rgba(0, 0, 0, 0.8);
+
+//         color: white;
+//         border-radius: 5px;
+//         opacity: 1.0;
+//         text-transform: uppercase;
+//         font-size: 12px;
+//         cursor: pointer;
+//         border: none;
+//         outline: none;
+//         &:hover {
+//             transform:  scale(1.02);
+//         }
+
+//     }
+// `
+
 const Buttons = styled.div`
     display: flex;
     flex-direction: row;
     justify-content: center;
-    margin: 2px auto;
+    margin: 5px auto;
     align-items: center;
 
     button {
         width: 110px;
-        height: 30px;
-        flex-shrink: 0;
-        margin: 3px;
-        // background-color: rgba(12, 87, 236, 0.8);
-        background-color: rgba(0, 0, 0, 0.8);
+        height: 35px;
+        margin: 5px;
 
-        color: white;
-        border-radius: 5px;
-        opacity: 1.0;
-        text-transform: uppercase;
+        background: rgba(255, 255, 255, 0.1);
+        backdrop-filter: blur(10px);
+        -webkit-backdrop-filter: blur(10px);
+
+        border: 1px solid rgba(255, 255, 255, 0.25);
+        border-radius: 12px;
+
+        box-shadow:
+            inset 0 1px 1px rgba(255,255,255,0.3),
+            0 6px 15px rgba(0,0,0,0.25);
+
+        // color: white;
         font-size: 12px;
+        text-transform: uppercase;
         cursor: pointer;
-        border: none;
-        outline: none;
+        transition: all 0.3s ease;
+
         &:hover {
-            transform:  scale(1.02);
+            transform: translateY(-2px);
+            background: rgba(255, 255, 255, 0.2);
         }
 
-    }
-`
+        &:active {
+            transform: scale(0.95);
+        }
 
+        &:disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
+        }
+    }
+`;
 
 const SearchBar = styled.div`
     width: 100%    
@@ -560,27 +604,58 @@ height: auto;
   pointer-events: auto;
 `;
 
+// const GridBox = styled.div`
+//     // background-color: #4f46e5; 
+//     background-color: #000000; 
+
+//     color: white;
+//     display: flex;
+//     justify-content: center;
+//     align-items: center;
+//     width: 100%;
+//     height: 100%;        /* fill the grid cell */
+//     // font-size: 5px;
+//     font-size: clamp(2px, 2vw, 15px);
+//     // border: black;
+//     border-radius: 4px;
+//     cursor: pointer;
+//     transition: opacity 0.3s ease, transform 0.2s;
+//     opacity: ${props => (props.$revealAll || props.$isTransparent) ? '0' : '1'};
+//     pointer-events: ${props => (props.$isTransparent || props.$disable) ? 'none' : 'auto'};
+
+//     &:hover {
+//         transform: ${props => (props.$isTransparent || props.$revealAll) ? 'none' : 'scale(1.1)'};
+//     }
+// `;
+
 const GridBox = styled.div`
-    // background-color: #4f46e5; 
-    background-color: #000000; 
+    background: rgb(141, 161, 234);
+    backdrop-filter: blur(12px);
+    -webkit-backdrop-filter: blur(12px);
+
+    border: 1px solid rgba(255, 255, 255, 0.2);
+    box-shadow: 
+        inset 0 1px 1px rgba(255,255,255,0.2),
+        0 4px 10px rgba(0,0,0,0.2);
 
     color: white;
     display: flex;
     justify-content: center;
     align-items: center;
     width: 100%;
-    height: 100%;        /* fill the grid cell */
-    // font-size: 5px;
+    height: 100%;
     font-size: clamp(2px, 2vw, 15px);
-    // border: black;
-    border-radius: 4px;
+    border-radius: 8px;
     cursor: pointer;
-    transition: opacity 0.3s ease, transform 0.2s;
+
+    transition: all 0.3s ease;
+
     opacity: ${props => (props.$revealAll || props.$isTransparent) ? '0' : '1'};
     pointer-events: ${props => (props.$isTransparent || props.$disable) ? 'none' : 'auto'};
 
     &:hover {
-        transform: ${props => (props.$isTransparent || props.$revealAll) ? 'none' : 'scale(1.1)'};
+        transform: ${props => (props.$isTransparent || props.$revealAll) ? 'none' : 'scale(1.08)'};
+        background: rgba(103, 110, 239, 0.89);
     }
 `;
 
